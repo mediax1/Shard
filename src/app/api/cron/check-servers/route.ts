@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const now = new Date();
 
   const users = await col.find({ "servers.0": { $exists: true } }).toArray();
-  const results = { suspended: 0, deleted: 0, errors: [] as string[], debug: [] as string[] };
+  const results = { suspended: 0, deleted: 0, errors: [] as string[] };
 
   for (const user of users) {
     for (const server of user.servers ?? []) {
@@ -24,14 +24,9 @@ export async function GET(req: NextRequest) {
 
         const expiresAt = new Date(server.expiresAt);
 
-        // Use stored graceEndsAt if available, otherwise calculate from expiresAt
         const graceEndsAt = server.graceEndsAt
           ? new Date(server.graceEndsAt)
           : new Date(expiresAt.getTime() + GRACE_DAYS * 24 * 60 * 60 * 1000);
-
-        results.debug.push(
-          `Server ${server.id} | status: ${server.status} | expiresAt: ${expiresAt.toISOString()} | graceEndsAt: ${graceEndsAt.toISOString()} | now: ${now.toISOString()} | graceExpired: ${now >= graceEndsAt}`
-        );
 
         if (now >= graceEndsAt && server.status === "suspended") {
           await deletePteroServer(server.pteroId);
