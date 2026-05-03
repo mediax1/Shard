@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         username: user.username,
         avatar: user.avatar,
         email: user.email,
-        credits: 10,
+        credits: 15,
         claimsToday: 0,
         claimDate: null,
         lastClaimAt: null,

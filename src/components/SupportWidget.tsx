@@ -210,7 +210,7 @@ export default function SupportWidget() {
 
             {/* Discord Support Button */}
             <a
-              href="https://discord.gg/FHzr8Tss4Y"
+              href="https://discord.gg/wgXgZ4BfbH"
               target="_blank"
               rel="noopener noreferrer"
               className="text-left px-4 py-2.5 rounded-xl bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/30 hover:border-[#5865F2]/60 transition-all text-xs text-white group/discord flex items-center justify-between mt-1"
