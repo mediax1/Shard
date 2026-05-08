@@ -43,7 +43,7 @@ export default function PromoPopup() {
             </div>
             <div>
               <h3 className="text-white text-[15px] font-extrabold tracking-tight mb-0.5">Unlock Premium</h3>
-              <p className="text-[#FFB800]/80 text-[10px] font-bold tracking-widest uppercase">Nodes & Coins</p>
+              <p className="text-[#FFB800]/80 text-[10px] font-bold tracking-widest uppercase">Nodes & Credits</p>
             </div>
           </div>
           <Link href="/panel/pricings" className="shrink-0 bg-[#FFB800] hover:bg-[#E5A500] text-black font-bold py-2 px-4 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap text-xs ml-auto">

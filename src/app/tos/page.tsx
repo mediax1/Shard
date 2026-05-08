@@ -78,7 +78,7 @@ export default function TOSPage() {
               <p>We reserve certain rights:</p>
               <ul className="list-disc pl-5 space-y-2 marker:text-[#FFB800]">
                 <li>To suspend your access to our services at any time as we see fit.</li>
-                <li>To modify data associated with your account such as our server billing currency "Coins" as we see fit.</li>
+                <li>To modify data associated with your account such as our server billing currency "Credits" as we see fit.</li>
                 <li>To erase or suspend access to data associated with your servers including files and databases.</li>
                 <li>To process data/files uploaded by you to your servers as is necessary for our legal and safe operation and to provide the best service we can.</li>
               </ul>
