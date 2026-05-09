@@ -7,6 +7,13 @@ export async function middleware(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
   if (pathname.startsWith("/banned")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/", baseUrl));
+    }
+    const banCheck = await checkBan(token, baseUrl);
+    if (banCheck !== "banned") {
+      return NextResponse.redirect(new URL("/", baseUrl));
+    }
     return NextResponse.next();
   }
 
