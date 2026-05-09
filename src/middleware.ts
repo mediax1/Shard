@@ -7,13 +7,6 @@ export async function middleware(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
   if (pathname.startsWith("/banned")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/", baseUrl));
-    }
-    const banCheck = await checkBan(token, baseUrl);
-    if (banCheck !== "banned") {
-      return NextResponse.redirect(new URL("/", baseUrl));
-    }
     return NextResponse.next();
   }
 
@@ -43,16 +36,15 @@ export async function middleware(request: NextRequest) {
 
 async function checkBan(token: string, baseUrl: string): Promise<"banned" | "ok" | "error"> {
   try {
-    const payload = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+    const decoded = atob(token);
+    const payload = JSON.parse(decoded);
     const discordId = payload?.id;
     if (!discordId) return "error";
 
     const res = await fetch(
       `${baseUrl}/api/auth/check-ban?discordId=${discordId}`,
       {
-        headers: {
-          "x-internal-secret": process.env.INTERNAL_SECRET!,
-        },
+        headers: { "x-internal-secret": process.env.INTERNAL_SECRET! },
       }
     );
 
@@ -65,5 +57,5 @@ async function checkBan(token: string, baseUrl: string): Promise<"banned" | "ok"
 }
 
 export const config = {
-  matcher: ["/panel/:path*", "/login", "/banned"],
+  matcher: ["/panel/:path*", "/login"],
 };
