@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PLAN_COLORS, PLAN_DISPLAY, PLANS, type PlanKey, type Server } from "@/lib/plans";
+import { isModerationBlocked, isRenewable } from "@/lib/serverUtils";
 
 function LiveTimer({ expiresAt }: { expiresAt: string }) {
   const [display, setDisplay] = useState("");
@@ -250,7 +251,8 @@ export default function ServerList({
       ) : (
         <div className="space-y-3">
           {active.map((server) => {
-            const isSuspended = server.status === "suspended";
+            const isSuspended = server.status === "suspended" && !isModerationBlocked(server);
+            const isTOSSuspended = server.moderationStatus === "suspended";
             const expired = new Date(server.expiresAt).getTime() < Date.now();
             const specs = PLAN_DISPLAY[server.plan as PlanKey];
             const planColor = PLAN_COLORS[server.plan as PlanKey] || "text-gray-400";
@@ -261,9 +263,18 @@ export default function ServerList({
               <div
                 key={server.id}
                 className={`bg-[#111111] border rounded-xl p-5 ${
-                  isSuspended ? "border-amber-500/30" : "border-white/10"
+                  isTOSSuspended ? "border-red-500/30" : isSuspended ? "border-amber-500/30" : "border-white/10"
                 }`}
               >
+                {isTOSSuspended && (
+                  <div className="mb-3 flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                    <p className="text-red-400 text-xs font-medium">
+                      Suspended for TOS violation — contact support to appeal.{" "}
+                      {server.moderationReason && <span className="opacity-70">Reason: {server.moderationReason}</span>}
+                    </p>
+                  </div>
+                )}
                 {isSuspended && (
                   <div className="mb-3 flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
@@ -276,13 +287,19 @@ export default function ServerList({
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${
-                      isSuspended ? "bg-amber-400" : expired ? "bg-red-500" : "bg-green-400"
+                      isTOSSuspended ? "bg-red-500" : isSuspended ? "bg-amber-400" : expired ? "bg-red-500" : "bg-green-400"
                     }`} />
+
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-white font-semibold text-sm">{server.name}</p>
                         <span className={`text-xs font-medium capitalize ${planColor}`}>{server.plan}</span>
                         <span className="text-gray-600 text-xs">{server.language === "nodejs" ? "Node.js" : "Python"}</span>
+                        {isTOSSuspended && (
+                          <span className="text-xs font-medium text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
+                            TOS Suspended
+                          </span>
+                        )}
                         {isSuspended && (
                           <span className="text-xs font-medium text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
                             Suspended
@@ -300,7 +317,7 @@ export default function ServerList({
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {!expired && !isSuspended && server.pteroUuid && (
+                    {!expired && !isSuspended && !isTOSSuspended && server.pteroUuid && (
                       <a
                         href={`${pterodactylUrl}/server/${server.pteroUuid}`}
                         target="_blank"
@@ -310,62 +327,71 @@ export default function ServerList({
                         Manage
                       </a>
                     )}
-                    <button
-                      onClick={() => setRenewingServer(server)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
-                        isSuspended
-                          ? "bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/30 text-amber-400"
-                          : "bg-indigo-600/20 hover:bg-indigo-600/40 border-indigo-500/30 text-indigo-400"
-                      }`}
-                    >
-                      Renew
-                    </button>
-                    {confirmingDelete ? (
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleDelete(server.id)}
-                          disabled={isDeleting}
-                          className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-40"
-                        >
-                          {isDeleting ? "..." : "Confirm"}
-                        </button>
-                        <button
-                          onClick={() => setConfirmDeleteId(null)}
-                          className="px-3 py-1.5 text-gray-500 hover:text-white text-xs transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
+                    {isRenewable(server) && (
                       <button
-                        onClick={() => setConfirmDeleteId(server.id)}
-                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-xs font-medium rounded-lg transition-colors"
+                        onClick={() => setRenewingServer(server)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
+                          isSuspended
+                            ? "bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/30 text-amber-400"
+                            : "bg-indigo-600/20 hover:bg-indigo-600/40 border-indigo-500/30 text-indigo-400"
+                        }`}
                       >
-                        Delete
+                        Renew
                       </button>
+                    )}
+                    {!isTOSSuspended && (
+                      <>
+                        {confirmingDelete ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(server.id)}
+                              disabled={isDeleting}
+                              className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-40"
+                            >
+                              {isDeleting ? "..." : "Confirm"}
+                            </button>
+                            <button
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="px-3 py-1.5 text-gray-500 hover:text-white text-xs transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDeleteId(server.id)}
+                            className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-xs font-medium rounded-lg transition-colors"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
 
-                <div className={`mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs ${
-                  isSuspended ? "text-amber-500" : expired ? "text-red-400" : "text-gray-500"
-                }`}>
-                  {isSuspended && server.graceEndsAt ? (
-                    <>
-                      <span>Grace period ends in</span>
-                      <span className="font-mono text-amber-400">
-                        <GraceTimer graceEndsAt={server.graceEndsAt} />
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{expired ? "Expired" : "Expires in"}</span>
-                      <span className={`font-mono ${expired ? "text-red-400" : "text-gray-300"}`}>
-                        <LiveTimer expiresAt={server.expiresAt} />
-                      </span>
-                    </>
-                  )}
-                </div>
+                {!isTOSSuspended && (
+                  <div className={`mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs ${
+                    isSuspended ? "text-amber-500" : expired ? "text-red-400" : "text-gray-500"
+                  }`}>
+                    {isSuspended && server.graceEndsAt ? (
+                      <>
+                        <span>Grace period ends in</span>
+                        <span className="font-mono text-amber-400">
+                          <GraceTimer graceEndsAt={server.graceEndsAt} />
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{expired ? "Expired" : "Expires in"}</span>
+                        <span className={`font-mono ${expired ? "text-red-400" : "text-gray-300"}`}>
+                          <LiveTimer expiresAt={server.expiresAt} />
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
+
               </div>
             );
           })}

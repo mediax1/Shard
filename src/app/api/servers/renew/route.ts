@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import { unsuspendPteroServer } from "@/lib/pterodactyl";
 import { PLANS, type PlanKey, type Duration } from "@/lib/plans";
+import { isRenewable } from "@/lib/serverUtils";
+
 
 
 export async function POST(request: NextRequest) {
@@ -33,7 +35,13 @@ export async function POST(request: NextRequest) {
 
   const server = (record.servers ?? []).find((s: { id: string }) => s.id === serverId);
   if (!server) return NextResponse.json({ error: "Server not found." }, { status: 404 });
-  if (server.status === "deleted") return NextResponse.json({ error: "Server has been deleted and cannot be renewed." }, { status: 400 });
+  if (!isRenewable(server)) {
+    const reason =
+      server.status === "deleted"
+        ? "Server has been deleted and cannot be renewed."
+        : "This server has been suspended for TOS violations and cannot be renewed. Contact support.";
+    return NextResponse.json({ error: reason }, { status: 403 });
+  }
 
   const plan = server.plan as PlanKey;
   const cost = duration === 7 ? PLANS[plan].price7 : PLANS[plan].price30;

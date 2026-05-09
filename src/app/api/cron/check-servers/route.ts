@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { suspendPteroServer, deletePteroServer } from "@/lib/pterodactyl";
+import { isModerationBlocked } from "@/lib/serverUtils";
+
 
 const GRACE_DAYS = 7;
 
@@ -21,6 +23,7 @@ export async function GET(req: NextRequest) {
     for (const server of user.servers ?? []) {
       try {
         if (server.status === "deleted") continue;
+        if (isModerationBlocked(server)) continue;
 
         const expiresAt = new Date(server.expiresAt);
 

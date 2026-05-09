@@ -1,3 +1,5 @@
+import type { ModerationStatus } from "./serverUtils";
+
 export type PlanKey = "starter" | "standard" | "pro" | "power";
 export type Duration = 7 | 30;
 
@@ -43,6 +45,9 @@ export interface Server {
   createdAt: string;
   expiresAt: string;
   status: string;
+  moderationStatus?: ModerationStatus;
+  moderationReason?: string;
+  moderationAt?: string;
   graceEndsAt?: string;
   suspendedAt?: string;
   deletedAt?: string;

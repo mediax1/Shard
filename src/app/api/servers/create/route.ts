@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import { createPteroUser, getPteroUserByExternalId, getPteroUserByEmail, createPteroServer, setPteroUserPassword } from "@/lib/pterodactyl";
 import { PLANS, type PlanKey, type Duration } from "@/lib/plans";
+import { isDisplayActive } from "@/lib/serverUtils";
+
 
 const SERVER_LIMITS: Record<string, number> = {
   free: 1,
@@ -53,9 +55,8 @@ export async function POST(request: NextRequest) {
 
   const userTier: string = record.tier ?? "free";
   const serverLimit = SERVER_LIMITS[userTier] ?? 1;
-  const activeServers = (record.servers ?? []).filter(
-    (s: { status: string }) => s.status === "active"
-  );
+  const activeServers = (record.servers ?? []).filter(isDisplayActive);
+
 
   if (activeServers.length >= serverLimit) {
     return NextResponse.json(
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
     createdAt: new Date(),
     expiresAt: new Date(Date.now() + duration * 24 * 60 * 60 * 1000),
     status: "active",
+    moderationStatus: "clean"
   };
 
   await col.updateOne(

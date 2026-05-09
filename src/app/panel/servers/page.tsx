@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import clientPromise from "@/lib/mongodb";
 import ServerList from "@/components/ServerList";
 import type { Server } from "@/lib/plans";
+import { isDisplayActive } from "@/lib/serverUtils";
+
 
 export default async function ServersPage() {
   const user = await getUser();
@@ -28,7 +30,7 @@ export default async function ServersPage() {
     console.error("Failed to connect to MongoDB, using default data for UI.");
   }
 
-  const activeCount = servers.filter((s: { status: string }) => s.status !== "deleted").length;
+  const activeCount = servers.filter(isDisplayActive).length;
 
   return (
     <div className="md:h-full flex flex-col pb-8 md:pb-0">
