@@ -1,7 +1,7 @@
 import PricingSection from "@/components/PricingSection";
 import Link from "next/link";
 
-const IS_LAUNCHED = false; // Set to true to launch the Pricing Store!
+const IS_LAUNCHED = true; // Set to true to launch the Pricing Store!
 
 export default function PricingsPage() {
   if (!IS_LAUNCHED) {
