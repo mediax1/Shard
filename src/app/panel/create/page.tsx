@@ -67,19 +67,15 @@ export default function CreateServerPage() {
 
   return (
     <div className="md:h-full flex flex-col pb-8 md:pb-0">
-      {/* Header — compact on desktop */}
       <div className="shrink-0 mb-3 md:mb-2">
         <h1 className="text-white text-2xl md:text-xl lg:text-2xl font-black tracking-tight">Create Server</h1>
         <p className="text-gray-400 mt-1 text-sm md:text-xs font-medium">Deploy a new high-performance bot server.</p>
       </div>
 
-      {/* Main card — fills remaining space */}
       <div className="bg-[#111] border border-white/10 rounded-2xl p-4 md:p-4 lg:p-6 shadow-2xl relative overflow-hidden flex-1 flex flex-col group/card hover:border-[#FFB800]/30 transition-all duration-500">
-        {/* Ambient glow effects */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-[#FFB800]/5 blur-[100px] rounded-full pointer-events-none group-hover/card:bg-[#FFB800]/10 transition-all duration-700" />
         <div className="absolute bottom-0 right-0 w-48 h-48 bg-[#FFB800]/3 blur-[80px] rounded-full pointer-events-none group-hover/card:bg-[#FFB800]/8 transition-all duration-700" />
 
-        {/* Animated dot grid background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40 group-hover/card:opacity-60 transition-opacity duration-700">
           <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -98,7 +94,6 @@ export default function CreateServerPage() {
           </svg>
         </div>
 
-        {/* Circuit line accents */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04] group-hover/card:opacity-[0.08] transition-opacity duration-700">
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
             <path d="M20,50 L80,50 L80,30 L150,30" stroke="#FFB800" strokeWidth="1" fill="none" strokeLinecap="round" />
@@ -121,7 +116,6 @@ export default function CreateServerPage() {
         </div>
 
         <div className="flex flex-col gap-4 md:gap-3 lg:gap-4 relative z-10 flex-1">
-          {/* Top row: Name + Language side by side on desktop */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-3">
             <div className="space-y-1.5">
               <label className="text-gray-400 text-xs font-bold uppercase tracking-widest">Server Name</label>
@@ -154,88 +148,59 @@ export default function CreateServerPage() {
             </div>
           </div>
 
-          {/* Plan selection — 4 cols on desktop, 2 on tablet, 1 on mobile */}
           <div className="space-y-1.5">
             <label className="text-gray-400 text-xs font-bold uppercase tracking-widest">Plan</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-2 lg:gap-3">
-              {PLANS.map((p) => {
-                const isLocked = p.key !== "starter";
-                return (
-                  <button
-                    key={p.key}
-                    onClick={() => !isLocked && setPlan(p.key)}
-                    disabled={isLocked}
-                    className={`relative text-left p-4 md:p-3 lg:p-4 rounded-xl border transition-all duration-300 overflow-hidden group/plan ${isLocked
-                        ? "border-white/5 bg-[#1a1a1a] cursor-not-allowed"
-                        : plan === p.key
-                          ? "border-[#FFB800] bg-[#FFB800]/5 shadow-[0_0_20px_rgba(255,184,0,0.1)]"
-                          : "border-white/10 bg-[#1a1a1a] hover:border-[#FFB800]/40 hover:shadow-[0_0_15px_rgba(255,184,0,0.05)]"
-                      }`}
-                  >
-                    {/* Locked overlay */}
-                    {isLocked && (
-                      <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center">
-                        <svg className="w-5 h-5 text-gray-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                        </svg>
-                        <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Coming Soon</span>
-                      </div>
-                    )}
+              {PLANS.map((p) => (
+                <button
+                  key={p.key}
+                  onClick={() => setPlan(p.key)}
+                  className={`relative text-left p-4 md:p-3 lg:p-4 rounded-xl border transition-all duration-300 overflow-hidden group/plan ${
+                    plan === p.key
+                      ? "border-[#FFB800] bg-[#FFB800]/5 shadow-[0_0_20px_rgba(255,184,0,0.1)]"
+                      : "border-white/10 bg-[#1a1a1a] hover:border-[#FFB800]/40 hover:shadow-[0_0_15px_rgba(255,184,0,0.05)]"
+                  }`}
+                >
+                  <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[30px] pointer-events-none transition-all duration-500 ${plan === p.key ? "bg-[#FFB800]/15" : "bg-transparent"}`} />
 
-                    {/* Plan card glow effect */}
-                    <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[30px] pointer-events-none transition-all duration-500 ${!isLocked && plan === p.key ? "bg-[#FFB800]/15" : "bg-transparent"
-                      }`} />
-
-                    {p.badge && (
-                      <span className="absolute top-3 right-3 md:top-2 md:right-2 text-[10px] md:text-[9px] text-[#FFB800] font-bold bg-[#FFB800]/10 px-2 py-0.5 rounded-full">{p.badge}</span>
-                    )}
-                    <p className="text-white font-black text-base md:text-sm mb-1.5 md:mb-1 relative z-10">{p.name}</p>
-                    <div className="space-y-0.5 text-xs md:text-[11px] text-gray-500 font-medium relative z-10">
-                      <p>RAM: <span className="text-gray-300 font-bold">{p.ram}</span></p>
-                      <p>CPU: <span className="text-gray-300 font-bold">{p.cpu}</span></p>
-                      <p>Storage: <span className="text-gray-300 font-bold">{p.storage}</span></p>
-                    </div>
-                    <div className="mt-2 md:mt-1.5 pt-2 md:pt-1.5 border-t border-white/5 text-xs md:text-[11px] text-gray-500 font-medium flex items-center justify-between relative z-10">
-                      <span>
-                        <span className="text-[#FFB800] font-black text-sm md:text-xs">{p.price7} credits</span> / 7d
-                      </span>
-                      <span>
-                        <span className="text-[#FFB800] font-black text-sm md:text-xs">{p.price30} credits</span> / 30d
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+                  {p.badge && (
+                    <span className="absolute top-3 right-3 md:top-2 md:right-2 text-[10px] md:text-[9px] text-[#FFB800] font-bold bg-[#FFB800]/10 px-2 py-0.5 rounded-full">{p.badge}</span>
+                  )}
+                  <p className="text-white font-black text-base md:text-sm mb-1.5 md:mb-1 relative z-10">{p.name}</p>
+                  <div className="space-y-0.5 text-xs md:text-[11px] text-gray-500 font-medium relative z-10">
+                    <p>RAM: <span className="text-gray-300 font-bold">{p.ram}</span></p>
+                    <p>CPU: <span className="text-gray-300 font-bold">{p.cpu}</span></p>
+                    <p>Storage: <span className="text-gray-300 font-bold">{p.storage}</span></p>
+                  </div>
+                  <div className="mt-2 md:mt-1.5 pt-2 md:pt-1.5 border-t border-white/5 text-xs md:text-[11px] text-gray-500 font-medium flex items-center justify-between relative z-10">
+                    <span>
+                      <span className="text-[#FFB800] font-black text-sm md:text-xs">{p.price7} credits</span> / 7d
+                    </span>
+                    <span>
+                      <span className="text-[#FFB800] font-black text-sm md:text-xs">{p.price30} credits</span> / 30d
+                    </span>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Duration */}
           <div className="space-y-1.5">
             <label className="text-gray-400 text-xs font-bold uppercase tracking-widest">Duration</label>
             <div className="flex gap-3">
-              {([7, 30] as const).map((d) => {
-                const isDurationLocked = false;
-                return (
-                  <button
-                    key={d}
-                    onClick={() => !isDurationLocked && setDuration(d)}
-                    disabled={isDurationLocked}
-                    className={`relative flex-1 py-2.5 md:py-2 rounded-xl border text-sm font-bold transition-all duration-200 overflow-hidden ${isDurationLocked
-                        ? "border-white/5 bg-[#1a1a1a] text-gray-600 cursor-not-allowed"
-                        : duration === d
-                          ? "border-[#FFB800] bg-[#FFB800]/10 text-[#FFB800] shadow-[0_0_15px_rgba(255,184,0,0.15)]"
-                          : "border-white/10 bg-[#1a1a1a] text-gray-400 hover:text-white hover:border-white/20"
-                      }`}
-                  >
-                    {isDurationLocked && (
-                      <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-[1px] rounded-xl flex items-center justify-center">
-                        <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Coming Soon</span>
-                      </div>
-                    )}
-                    {d} days
-                  </button>
-                );
-              })}
+              {([7, 30] as const).map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDuration(d)}
+                  className={`flex-1 py-2.5 md:py-2 rounded-xl border text-sm font-bold transition-all duration-200 ${
+                    duration === d
+                      ? "border-[#FFB800] bg-[#FFB800]/10 text-[#FFB800] shadow-[0_0_15px_rgba(255,184,0,0.15)]"
+                      : "border-white/10 bg-[#1a1a1a] text-gray-400 hover:text-white hover:border-white/20"
+                  }`}
+                >
+                  {d} days
+                </button>
+              ))}
             </div>
           </div>
 
@@ -243,16 +208,13 @@ export default function CreateServerPage() {
 
           <div className="hidden md:flex flex-1 items-center justify-center my-1">
             <svg viewBox="0 0 320 100" className="w-full max-w-[400px] lg:max-w-[350px] opacity-50 group-hover/card:opacity-70 transition-opacity duration-500">
-              {/* Central server rack */}
               <rect x="135" y="15" width="50" height="70" rx="4" fill="#1a1a1a" stroke="#FFB800" strokeWidth="1" opacity="0.6" />
               <rect x="135" y="15" width="50" height="70" rx="4" fill="none" stroke="#FFB800" strokeWidth="1.2" opacity="0.4" />
-              {/* Server slots */}
               <rect x="141" y="22" width="38" height="8" rx="2" fill="#141414" stroke="#FFB800" strokeWidth="0.5" opacity="0.5" />
               <rect x="141" y="34" width="38" height="8" rx="2" fill="#141414" stroke="#FFB800" strokeWidth="0.5" opacity="0.5" />
               <rect x="141" y="46" width="38" height="8" rx="2" fill="#141414" stroke="#FFB800" strokeWidth="0.5" opacity="0.5" />
               <rect x="141" y="58" width="38" height="8" rx="2" fill="#141414" stroke="#FFB800" strokeWidth="0.5" opacity="0.5" />
               <rect x="141" y="70" width="38" height="8" rx="2" fill="#141414" stroke="#FFB800" strokeWidth="0.5" opacity="0.5" />
-              {/* Server status LEDs */}
               <circle cx="145" cy="26" r="1.5" fill="#00FF88" opacity="0.8">
                 <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" />
               </circle>
@@ -268,18 +230,12 @@ export default function CreateServerPage() {
               <circle cx="145" cy="74" r="1.5" fill="#FFB800" opacity="0.5">
                 <animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite" />
               </circle>
-
-              {/* Left connection lines — incoming data */}
               <path d="M30,30 L60,30 L60,45 L90,45" stroke="#FFB800" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.3" />
               <path d="M20,55 L50,55 L50,50 L90,50" stroke="#FFB800" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.25" />
               <path d="M40,75 L70,75 L70,55 L90,55" stroke="#FFB800" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.2" />
-
-              {/* Left network nodes */}
               <circle cx="30" cy="30" r="3" fill="#1a1a1a" stroke="#FFB800" strokeWidth="0.8" opacity="0.4" />
               <circle cx="20" cy="55" r="3" fill="#1a1a1a" stroke="#FFB800" strokeWidth="0.8" opacity="0.4" />
               <circle cx="40" cy="75" r="3" fill="#1a1a1a" stroke="#FFB800" strokeWidth="0.8" opacity="0.4" />
-
-              {/* Left animated data flow dots */}
               <circle r="1.5" fill="#FFB800" opacity="0.7">
                 <animateMotion dur="3s" repeatCount="indefinite" path="M30,30 L60,30 L60,45 L135,45" />
                 <animate attributeName="opacity" values="0;0.7;0.7;0" dur="3s" repeatCount="indefinite" />
@@ -292,18 +248,12 @@ export default function CreateServerPage() {
                 <animateMotion dur="4s" repeatCount="indefinite" path="M40,75 L70,75 L70,55 L135,55" />
                 <animate attributeName="opacity" values="0;0.5;0.5;0" dur="4s" repeatCount="indefinite" />
               </circle>
-
-              {/* Right connection lines — outgoing data */}
               <path d="M185,45 L230,45 L230,30 L280,30" stroke="#FFB800" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.3" />
               <path d="M185,50 L220,50 L220,55 L270,55" stroke="#FFB800" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.25" />
               <path d="M185,55 L230,55 L230,75 L290,75" stroke="#FFB800" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.2" />
-
-              {/* Right network nodes */}
               <circle cx="280" cy="30" r="3" fill="#1a1a1a" stroke="#FFB800" strokeWidth="0.8" opacity="0.4" />
               <circle cx="270" cy="55" r="3" fill="#1a1a1a" stroke="#FFB800" strokeWidth="0.8" opacity="0.4" />
               <circle cx="290" cy="75" r="3" fill="#1a1a1a" stroke="#FFB800" strokeWidth="0.8" opacity="0.4" />
-
-              {/* Right animated data flow dots */}
               <circle r="1.5" fill="#00FF88" opacity="0.7">
                 <animateMotion dur="3s" repeatCount="indefinite" path="M185,45 L230,45 L230,30 L280,30" />
                 <animate attributeName="opacity" values="0;0.7;0.7;0" dur="3s" repeatCount="indefinite" />
@@ -316,8 +266,6 @@ export default function CreateServerPage() {
                 <animateMotion dur="4s" repeatCount="indefinite" path="M185,55 L230,55 L230,75 L290,75" />
                 <animate attributeName="opacity" values="0;0.5;0.5;0" dur="4s" repeatCount="indefinite" />
               </circle>
-
-              {/* Network pulse rings around server */}
               <circle cx="160" cy="50" r="30" fill="none" stroke="#FFB800" strokeWidth="0.5" opacity="0.15">
                 <animate attributeName="r" values="30;45;30" dur="4s" repeatCount="indefinite" />
                 <animate attributeName="opacity" values="0.15;0.03;0.15" dur="4s" repeatCount="indefinite" />
@@ -326,13 +274,10 @@ export default function CreateServerPage() {
                 <animate attributeName="r" values="40;55;40" dur="5s" repeatCount="indefinite" />
                 <animate attributeName="opacity" values="0.08;0.02;0.08" dur="5s" repeatCount="indefinite" />
               </circle>
-
-              {/* Small label */}
               <text x="160" y="95" textAnchor="middle" fontSize="7" fill="#FFB800" opacity="0.25" fontWeight="600">DEPLOYING</text>
             </svg>
           </div>
 
-          {/* Footer: cost + deploy — pushed to bottom */}
           <div className="flex items-center justify-between pt-3 md:pt-2 border-t border-white/5 mt-auto">
             <div>
               <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Total Cost</p>
