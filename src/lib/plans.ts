@@ -10,13 +10,15 @@ export interface PlanSpec {
   storage: number;
   price7: number;
   price30: number;
+  disabled?: boolean;
+  disabledLabel?: string;
 }
 
 export const PLANS: Record<PlanKey, PlanSpec> = {
-  starter:  { name: "Starter",  ram: 256,  cpu: 20,  storage: 1024,  price7: 20,  price30: 60  },
-  standard: { name: "Standard", ram: 1024, cpu: 50,  storage: 2048,  price7: 40,  price30: 140 },
-  pro:      { name: "Pro",      ram: 2048, cpu: 100, storage: 4096,  price7: 80,  price30: 280 },
-  power:    { name: "Power",    ram: 4096, cpu: 150, storage: 6144,  price7: 150, price30: 520 },
+  starter:  { name: "Starter",  ram: 256,  cpu: 20,  storage: 1024, price7: 20,  price30: 80  },
+  standard: { name: "Standard", ram: 1024, cpu: 50,  storage: 2048, price7: 60,  price30: 220 },
+  pro:      { name: "Pro",      ram: 2048, cpu: 100, storage: 4096, price7: 110, price30: 400 },
+  power:    { name: "Power",    ram: 4096, cpu: 150, storage: 6144, price7: 200, price30: 700, disabled: true, disabledLabel: "Disabled for Now" },
 } as const;
 
 export const PLAN_DISPLAY: Record<PlanKey, { ram: string; cpu: string; storage: string }> = {

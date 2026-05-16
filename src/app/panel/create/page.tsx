@@ -5,30 +5,32 @@ import { useRouter } from "next/navigation";
 import { PLANS as SHARED_PLANS, PLAN_DISPLAY, type PlanKey } from "@/lib/plans";
 
 const PLAN_UI: { key: PlanKey; badge: string | null; color: string }[] = [
-  { key: "starter", badge: null, color: "border-white/10" },
+  { key: "starter",  badge: null,            color: "border-white/10"      },
   { key: "standard", badge: "⭐ Most Popular", color: "border-indigo-500/60" },
-  { key: "pro", badge: null, color: "border-white/10" },
-  { key: "power", badge: null, color: "border-white/10" },
+  { key: "pro",      badge: null,            color: "border-white/10"      },
+  { key: "power",    badge: null,            color: "border-white/10"      },
 ];
 
 const PLANS = PLAN_UI.map((ui) => ({
   ...ui,
-  name: SHARED_PLANS[ui.key].name,
-  ram: PLAN_DISPLAY[ui.key].ram,
-  cpu: PLAN_DISPLAY[ui.key].cpu,
-  storage: PLAN_DISPLAY[ui.key].storage,
-  price7: SHARED_PLANS[ui.key].price7,
-  price30: SHARED_PLANS[ui.key].price30,
+  name:         SHARED_PLANS[ui.key].name,
+  ram:          PLAN_DISPLAY[ui.key].ram,
+  cpu:          PLAN_DISPLAY[ui.key].cpu,
+  storage:      PLAN_DISPLAY[ui.key].storage,
+  price7:       SHARED_PLANS[ui.key].price7,
+  price30:      SHARED_PLANS[ui.key].price30,
+  disabled:     SHARED_PLANS[ui.key].disabled ?? false,
+  disabledLabel: SHARED_PLANS[ui.key].disabledLabel ?? null,
 }));
 
 export default function CreateServerPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName]         = useState("");
   const [language, setLanguage] = useState<"nodejs" | "python">("python");
-  const [plan, setPlan] = useState("starter");
+  const [plan, setPlan]         = useState("starter");
   const [duration, setDuration] = useState<7 | 30>(7);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState<string | null>(null);
 
   const selectedPlan = PLANS.find((p) => p.key === plan)!;
   const cost = duration === 7 ? selectedPlan.price7 : selectedPlan.price30;
@@ -136,10 +138,11 @@ export default function CreateServerPage() {
                   <button
                     key={lang}
                     onClick={() => setLanguage(lang)}
-                    className={`flex-1 py-2.5 md:py-2 rounded-xl border text-sm font-bold transition-all duration-200 ${language === lang
+                    className={`flex-1 py-2.5 md:py-2 rounded-xl border text-sm font-bold transition-all duration-200 ${
+                      language === lang
                         ? "border-[#FFB800] bg-[#FFB800]/10 text-[#FFB800] shadow-[0_0_15px_rgba(255,184,0,0.15)]"
                         : "border-white/10 bg-[#1a1a1a] text-gray-400 hover:text-white hover:border-white/20"
-                      }`}
+                    }`}
                   >
                     {lang === "nodejs" ? "Node.js" : "Python"}
                   </button>
@@ -154,30 +157,38 @@ export default function CreateServerPage() {
               {PLANS.map((p) => (
                 <button
                   key={p.key}
-                  onClick={() => setPlan(p.key)}
+                  onClick={() => !p.disabled && setPlan(p.key)}
+                  disabled={p.disabled}
                   className={`relative text-left p-4 md:p-3 lg:p-4 rounded-xl border transition-all duration-300 overflow-hidden group/plan ${
-                    plan === p.key
-                      ? "border-[#FFB800] bg-[#FFB800]/5 shadow-[0_0_20px_rgba(255,184,0,0.1)]"
-                      : "border-white/10 bg-[#1a1a1a] hover:border-[#FFB800]/40 hover:shadow-[0_0_15px_rgba(255,184,0,0.05)]"
+                    p.disabled
+                      ? "border-white/5 bg-[#151515] opacity-50 cursor-not-allowed"
+                      : plan === p.key
+                        ? "border-[#FFB800] bg-[#FFB800]/5 shadow-[0_0_20px_rgba(255,184,0,0.1)]"
+                        : "border-white/10 bg-[#1a1a1a] hover:border-[#FFB800]/40 hover:shadow-[0_0_15px_rgba(255,184,0,0.05)]"
                   }`}
                 >
-                  <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[30px] pointer-events-none transition-all duration-500 ${plan === p.key ? "bg-[#FFB800]/15" : "bg-transparent"}`} />
+                  <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-[30px] pointer-events-none transition-all duration-500 ${!p.disabled && plan === p.key ? "bg-[#FFB800]/15" : "bg-transparent"}`} />
 
-                  {p.badge && (
+                  {p.badge && !p.disabled && (
                     <span className="absolute top-3 right-3 md:top-2 md:right-2 text-[10px] md:text-[9px] text-[#FFB800] font-bold bg-[#FFB800]/10 px-2 py-0.5 rounded-full">{p.badge}</span>
                   )}
-                  <p className="text-white font-black text-base md:text-sm mb-1.5 md:mb-1 relative z-10">{p.name}</p>
+
+                  {p.disabled && p.disabledLabel && (
+                    <span className="absolute top-3 right-3 md:top-2 md:right-2 text-[10px] md:text-[9px] text-red-400 font-bold bg-red-400/10 px-2 py-0.5 rounded-full">{p.disabledLabel}</span>
+                  )}
+
+                  <p className={`font-black text-base md:text-sm mb-1.5 md:mb-1 relative z-10 ${p.disabled ? "text-gray-600" : "text-white"}`}>{p.name}</p>
                   <div className="space-y-0.5 text-xs md:text-[11px] text-gray-500 font-medium relative z-10">
-                    <p>RAM: <span className="text-gray-300 font-bold">{p.ram}</span></p>
-                    <p>CPU: <span className="text-gray-300 font-bold">{p.cpu}</span></p>
-                    <p>Storage: <span className="text-gray-300 font-bold">{p.storage}</span></p>
+                    <p>RAM: <span className={`font-bold ${p.disabled ? "text-gray-600" : "text-gray-300"}`}>{p.ram}</span></p>
+                    <p>CPU: <span className={`font-bold ${p.disabled ? "text-gray-600" : "text-gray-300"}`}>{p.cpu}</span></p>
+                    <p>Storage: <span className={`font-bold ${p.disabled ? "text-gray-600" : "text-gray-300"}`}>{p.storage}</span></p>
                   </div>
                   <div className="mt-2 md:mt-1.5 pt-2 md:pt-1.5 border-t border-white/5 text-xs md:text-[11px] text-gray-500 font-medium flex items-center justify-between relative z-10">
                     <span>
-                      <span className="text-[#FFB800] font-black text-sm md:text-xs">{p.price7} credits</span> / 7d
+                      <span className={`font-black text-sm md:text-xs ${p.disabled ? "text-gray-600" : "text-[#FFB800]"}`}>{p.price7} credits</span> / 7d
                     </span>
                     <span>
-                      <span className="text-[#FFB800] font-black text-sm md:text-xs">{p.price30} credits</span> / 30d
+                      <span className={`font-black text-sm md:text-xs ${p.disabled ? "text-gray-600" : "text-[#FFB800]"}`}>{p.price30} credits</span> / 30d
                     </span>
                   </div>
                 </button>
