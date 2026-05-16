@@ -18,9 +18,9 @@ type State = {
 type MessageType = "success" | "error" | "tryagain";
 
 const SEGMENTS = [
-  { emoji: "\u{1FA99}", label: "+1",  color: "#18181b", type: "coin",     reward: 1  },
-  { emoji: "\u{1FA99}", label: "+2",  color: "#27272a", type: "coin",     reward: 2  },
-  { emoji: "\u{1FA99}", label: "+10", color: "#18181b", type: "coin",     reward: 10 },
+  { emoji: "\u{1FA99}", label: "+1",  color: "#18181b", type: "credit",     reward: 1  },
+  { emoji: "\u{1FA99}", label: "+2",  color: "#27272a", type: "credit",     reward: 2  },
+  { emoji: "\u{1FA99}", label: "+10", color: "#18181b", type: "credit",     reward: 10 },
   { emoji: null,        label: "",    color: "#27272a", type: "tryagain", reward: 0  },
 ];
 
@@ -269,7 +269,7 @@ export default function EarnPage() {
 
     const segIdx:     number = typeof data.segmentIndex === "number" ? data.segmentIndex : 0;
     const reward:     number = typeof data.reward       === "number" ? data.reward       : 1;
-    const rewardType: string = data.rewardType ?? "coin";
+    const rewardType: string = data.rewardType ?? "credit";
     const cooldownMs: number = data.cooldownMs ?? state?.cooldownMs ?? 2000;
 
     pendingResult.current = {

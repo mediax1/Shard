@@ -63,7 +63,7 @@ export default function Hero() {
 
 
         <main className=
-          "flex flex-col items-center relative z-10 px-4 w-full max-w-7xl mx-auto pb-4 md:pb-8 pt-24 md:pt-8">
+          "flex flex-col items-center relative z-10 px-4 w-full max-w-7xl mx-auto pb-4 md:pb-8 pt-24 md:pt-75">
 
           <div className="flex items-center justify-center gap-0 md:gap-6 w-full mb-0 z-10 ">
             <div className="w-28 sm:w-40 md:w-[200px] h-[28vh] sm:h-[28vh] min-h-[160px] md:min-h-[220px] lg:min-h-[280px] max-h-[380px] rounded-2xl bg-[#0a0a0a] border border-white/10 shadow-2xl relative overflow-hidden flex-shrink-0 -mr-16 sm:-mr-8 md:mr-0 z-0 opacity-60 sm:opacity-80 md:opacity-100 scale-90 md:scale-100 transition-all duration-500">

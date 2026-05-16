@@ -1,23 +1,49 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
-  return (
-    <header className="flex justify-between items-center px-4 sm:px-10 md:px-16 py-3 sm:py-4 md:py-6 z-10 w-full flex-shrink-0 ">
-      <div className="w-24 sm:w-20 md:w-24 lg:w-30 h-auto flex items-center justify-center pt-2 sm:pt-0 md:pt-8 ml-2 sm:ml-1 md:ml-0">
-        <Link href="/">
-          <img src="/images/DB.svg" alt="DB Logo" className="w-full h-auto object-contain cursor-pointer" />
-        </Link>
-      </div>
-      <nav className="flex items-center gap-4 sm:gap-6 md:gap-10 text-sm sm:text-base md:text-lg font-thin pr-1 md:pr-2 md:pt-6">
-        <Link href="/" className="hidden sm:block text-white hover:text-gray-300 transition">Home</Link>
-        <Link href="/tos" className="hidden sm:block text-white hover:text-gray-300 transition">Terms of Service</Link>
-        <Link href="/privacy" className="hidden sm:block text-white hover:text-gray-300 transition">Privacy Policy</Link>
-         <Link href="/contact" className="hidden sm:block text-white hover:text-gray-300 transition">Contact Us</Link>
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-        <Link href="/login" className="px-5 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 bg-[#FFB800] hover:bg-[#E5A500] text-black text-[13px] sm:text-sm md:text-base font-bold rounded-xl shadow-sm shadow-[#FFB800]/20 md:shadow-[0_0_15px_rgba(255,184,0,0.25)] hover:shadow-md transition-all duration-200 active:scale-95">Get Started</Link>
-      </nav>
-    </header>
+  return (
+    <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 pointer-events-none">
+      <header className="pointer-events-auto flex items-center gap-6 sm:gap-10 px-4 sm:px-6 py-1.5 sm:py-2 bg-[#0a0a0a]/40 backdrop-blur-md border border-white/10 rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all hover:bg-[#0a0a0a]/60 hover:border-white/20">
+        <div className="flex items-center shrink-0">
+          <Link href="/">
+            <img src="/images/DB.svg" alt="DB Logo" className="w-14 sm:w-16 h-auto object-contain cursor-pointer brightness-110" />
+          </Link>
+        </div>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-8 text-[13px] font-normal tracking-wide">
+          <Link href="/" className="text-white/50 hover:text-white transition-colors">Home</Link>
+          <Link href="/tos" className="text-white/50 hover:text-white transition-colors">TOS</Link>
+          <Link href="/privacy" className="text-white/50 hover:text-white transition-colors">Privacy</Link>
+          <Link href="/contact" className="text-white/50 hover:text-white transition-colors">Contact</Link>
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <Link href="/login" className="px-5 py-1.5 bg-[#FFB800] hover:bg-[#E5A500] text-black text-[12px] font-bold rounded-full transition-all active:scale-95 shadow-[0_0_12px_rgba(255,184,0,0.15)]">
+            Start For Free
+          </Link>
+          
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-white/70 p-1 hover:bg-white/5 rounded-full transition-colors">
+            {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+
+        {/* Mobile/Tablet Overlay Menu */}
+        {isMenuOpen && (
+          <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 w-[180px] bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/10 p-3 rounded-2xl flex flex-col gap-1 z-50 md:hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-white/70 text-xs font-medium hover:text-[#FFB800] hover:bg-white/5 px-3 py-2 rounded-lg transition-all">Home</Link>
+            <Link href="/tos" onClick={() => setIsMenuOpen(false)} className="text-white/70 text-xs font-medium hover:text-[#FFB800] hover:bg-white/5 px-3 py-2 rounded-lg transition-all">TOS</Link>
+            <Link href="/privacy" onClick={() => setIsMenuOpen(false)} className="text-white/70 text-xs font-medium hover:text-[#FFB800] hover:bg-white/5 px-3 py-2 rounded-lg transition-all">Privacy</Link>
+            <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-white/70 text-xs font-medium hover:text-[#FFB800] hover:bg-white/5 px-3 py-2 rounded-lg transition-all">Contact</Link>
+          </div>
+        )}
+      </header>
+    </div>
   );
 }

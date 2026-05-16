@@ -46,8 +46,8 @@ export async function GET() {
 }
 
 const WHEEL_SEGMENTS = [
-  { segmentIndex: 0, reward: 1, rewardType: "coin", weight: 80 },
-  { segmentIndex: 1, reward: 2, rewardType: "coin", weight: 1},
+  { segmentIndex: 0, reward: 1, rewardType: "credit", weight: 80 },
+  { segmentIndex: 1, reward: 2, rewardType: "credit", weight: 1},
   { segmentIndex: 3, reward: 0, rewardType: "tryagain", weight: 17 },
 ];
 

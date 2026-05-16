@@ -8,7 +8,7 @@ export default function TOSPage() {
     <div className="min-h-screen font-sans flex flex-col relative z-10 text-white selection:bg-[#FFB800] selection:text-black">
       <Navbar />
 
-      <main className="flex-grow max-w-4xl mx-auto w-full px-4 md:px-8 py-12 md:py-24">
+      <main className="flex-grow max-w-4xl mx-auto w-full px-4 md:px-8 pt-24 pb-12 sm:pt-32 md:pt-40 md:pb-24">
         {/* Hero Section */}
         <div className="mb-16">
           <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-4 text-white">
@@ -201,9 +201,7 @@ export default function TOSPage() {
                   contact@dynexus.space
                 </a>
               </p>
-              <p>
-                <span className="text-white font-medium">Support:</span> Official Dynexus Discord Server
-              </p>
+             
             </div>
           </div>
         </div>

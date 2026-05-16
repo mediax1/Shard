@@ -19,17 +19,32 @@
   }
 }
 
-body {
+html, body {
   background: #0a0a0a;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
-/* Hide scrollbar globally but keep scroll functionality */
-.scrollbar-hide {
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Globally hide scrollbars for all elements while maintaining scroll functionality */
+* {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.scrollbar-hide::-webkit-scrollbar {
+*::-webkit-scrollbar {
   display: none;
+}
+
+button, 
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+a {
+  cursor: pointer;
 }

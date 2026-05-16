@@ -50,22 +50,22 @@ export default async function PanelPage() {
             <h2 className="text-white text-4xl md:text-3xl lg:text-4xl font-black tracking-tight">{credits}</h2>
           </div>
 
-          {/* Coin visual */}
+          {/* Credits visual */}
           <div className="flex-1 flex items-center justify-center my-2 md:my-0">
             <svg viewBox="0 0 120 80" className="w-full max-w-[160px] md:max-w-[90px] lg:max-w-[120px] opacity-60 group-hover:opacity-80 transition-opacity duration-500">
-              {/* Stacked coins */}
+              {/* Stacked credits */}
               <ellipse cx="60" cy="68" rx="38" ry="10" fill="#FFB800" opacity="0.15" />
               <ellipse cx="60" cy="62" rx="32" ry="8" fill="#FFB800" opacity="0.12" />
-              {/* Bottom coin */}
+              {/* Bottom credit */}
               <ellipse cx="60" cy="55" rx="26" ry="7" fill="#1a1a1a" stroke="#FFB800" strokeWidth="1" opacity="0.8" />
               <ellipse cx="60" cy="53" rx="26" ry="7" fill="#1a1a1a" stroke="#FFB800" strokeWidth="1" opacity="0.9" />
-              {/* Middle coin */}
+              {/* Middle credit */}
               <ellipse cx="60" cy="44" rx="26" ry="7" fill="#1a1a1a" stroke="#FFB800" strokeWidth="1" opacity="0.9" />
               <ellipse cx="60" cy="42" rx="26" ry="7" fill="#181818" stroke="#FFB800" strokeWidth="1.2" />
-              {/* Top coin */}
+              {/* Top credit */}
               <ellipse cx="60" cy="33" rx="26" ry="7" fill="#1a1a1a" stroke="#FFB800" strokeWidth="1" />
               <ellipse cx="60" cy="31" rx="26" ry="7" fill="#141414" stroke="#FFB800" strokeWidth="1.5" />
-              {/* Dollar sign on top coin */}
+              {/* Dollar sign on top credit */}
               <text x="60" y="34" textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="800" fill="#FFB800" opacity="0.7">$</text>
               {/* Sparkle effects */}
               <circle cx="28" cy="25" r="1.5" fill="#FFB800" opacity="0.6">

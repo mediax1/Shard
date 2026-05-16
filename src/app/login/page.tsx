@@ -24,7 +24,7 @@ function LoginContent() {
   return (
     <div className="h-[100dvh] w-full relative overflow-hidden font-sans flex flex-col">
       <Navbar />
-      <main className="flex-grow flex flex-col justify-center items-center relative z-10 px-4 w-full">
+      <main className="flex-grow flex flex-col justify-center items-center relative z-10 px-4 w-full pt-20">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <h1 className="text-white text-3xl font-black tracking-tight">
