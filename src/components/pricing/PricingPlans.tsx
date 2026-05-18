@@ -24,8 +24,8 @@ export const plans: Plan[] = [
   },
   {
     title: "Classic Pack",
-    price: "$1.5",
-    amount: 1.3,
+    price: "$3",
+    amount: 3,
     baseCredits: 250,
     bonusCredits: 20,
     totalCredits: 270,
