@@ -29,7 +29,7 @@ export default function SupportWidget() {
     {
       id: "welcome",
       sender: "bot",
-      text: "Hi there! 👋 Welcome to Dynexus Support. How can I help you today?",
+      text: "Hi there! 👋 Welcome to Shard Support. How can I help you today?",
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
@@ -83,7 +83,7 @@ export default function SupportWidget() {
             </div>
             <div>
               <h3 className="text-white font-black tracking-wide text-sm">
-                Dynexus Support
+                Shard Support
               </h3>
               <p className="text-[#FFB800] text-[9px] font-bold tracking-widest uppercase mt-0.5">
                 AI Assistant
@@ -110,7 +110,6 @@ export default function SupportWidget() {
           </button>
         </div>
 
-        {/* Chat Area */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-hide">
           {messages.map((msg) => (
             <div
@@ -176,7 +175,6 @@ export default function SupportWidget() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* FAQ Options (Input Area) */}
         <div className="p-4 border-t border-white/5 bg-gradient-to-b from-[#0a0a0a] to-[#111]">
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3 px-1">
             Suggested Questions
@@ -208,7 +206,6 @@ export default function SupportWidget() {
               </button>
             ))}
 
-            {/* Discord Support Button */}
             <a
               href="https://discord.gg/wgXgZ4BfbH"
               target="_blank"
@@ -229,7 +226,6 @@ export default function SupportWidget() {
         </div>
       </div>
 
-      {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="group relative flex items-center justify-center p-2 cursor-pointer transition-all duration-300 active:scale-95"

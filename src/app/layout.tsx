@@ -59,11 +59,6 @@ export default function RootLayout({
         <NoiseBg />
         {children}
         <SupportWidget />
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8796158167826538"
-          crossOrigin="anonymous"
-          strategy="beforeInteractive"
-        />
       </body>
     </html>
   );
