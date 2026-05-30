@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
+const REFERRAL_BONUS_NEW_USER = 5;
+const REFERRAL_BONUS_REFERRER = 15;
+
 export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const state = searchParams.get("state");
 
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=no_code", baseUrl));
+  }
+
+  let referralCode: string | null = null;
+  if (state) {
+    try {
+      const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+      referralCode = decoded.ref ?? null;
+    } catch {
+      referralCode = null;
+    }
   }
 
   try {
@@ -59,17 +73,43 @@ export async function GET(request: NextRequest) {
     const existing = await col.findOne({ discordId: user.id });
 
     if (!existing) {
+      let referredBy: string | null = null;
+      let startingCredits = 10;
+
+      if (referralCode) {
+        const referrer = await col.findOne({ referralCode });
+        if (referrer && referrer.discordId !== user.id) {
+          referredBy = referrer.discordId;
+          startingCredits = 10 + REFERRAL_BONUS_NEW_USER;
+
+          await col.updateOne(
+            { discordId: referrer.discordId },
+            {
+              $inc: {
+                credits: REFERRAL_BONUS_REFERRER,
+                referralCount: 1,
+                referralEarnings: REFERRAL_BONUS_REFERRER,
+              },
+            }
+          );
+        }
+      }
+
       await col.insertOne({
         discordId: user.id,
         username: user.username,
         avatar: user.avatar,
         email: user.email,
-        credits: 10,
+        credits: startingCredits,
         claimsToday: 0,
         claimDate: null,
         lastClaimAt: null,
         servers: [],
         tier: "free",
+        referredBy,
+        referralCode: null,
+        referralCount: 0,
+        referralEarnings: 0,
         createdAt: new Date(),
       });
     }

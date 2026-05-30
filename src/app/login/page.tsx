@@ -16,9 +16,11 @@ const errorMessages: Record<string, string> = {
 function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const ref = searchParams.get("ref");
 
   const handleDiscordLogin = () => {
-    window.location.href = "/api/auth/discord";
+    const url = ref ? `/api/auth/discord?ref=${encodeURIComponent(ref)}` : "/api/auth/discord";
+    window.location.href = url;
   };
 
   return (
