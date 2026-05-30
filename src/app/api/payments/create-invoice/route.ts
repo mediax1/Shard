@@ -10,11 +10,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { planId } = await req.json();
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  const { planId } = body;
   const plan = plans.find((p) => p.planId === planId);
 
   if (!plan) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+  }
+
+  const db = (await clientPromise).db();
+
+  const recentPending = await db.collection("pending_payments").findOne({
+    discordId: user.id,
+    planId: plan.planId,
+    status: "pending",
+    createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) },
+  });
+
+  if (recentPending) {
+    return NextResponse.json({ url: `https://pay.cryptomus.com/pay/${recentPending.invoiceUuid}` });
   }
 
   const orderId = `${user.id}-${plan.planId}-${Date.now()}`;
@@ -22,7 +42,6 @@ export async function POST(req: NextRequest) {
   try {
     const invoice = await createInvoice({ amount: plan.amount, orderId });
 
-    const db = (await clientPromise).db();
     await db.collection("pending_payments").insertOne({
       orderId,
       discordId: user.id,

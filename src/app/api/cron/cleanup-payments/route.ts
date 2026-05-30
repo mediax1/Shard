@@ -9,12 +9,12 @@ export async function POST(req: NextRequest) {
 
   const db = (await clientPromise).db();
 
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
 
   const result = await db.collection("pending_payments").updateMany(
     {
       status: "pending",
-      createdAt: { $lt: oneHourAgo },
+      createdAt: { $lt: twoHoursAgo },
     },
     { $set: { status: "expired" } }
   );

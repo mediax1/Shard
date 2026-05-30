@@ -46,9 +46,10 @@ export async function GET() {
 }
 
 const WHEEL_SEGMENTS = [
-  { segmentIndex: 0, reward: 1, rewardType: "credit", weight: 80 },
-  { segmentIndex: 1, reward: 2, rewardType: "credit", weight: 1},
-  { segmentIndex: 3, reward: 0, rewardType: "tryagain", weight: 17 },
+  { segmentIndex: 0, reward: 1, rewardType: "credit", weight: 800000 },
+  { segmentIndex: 1, reward: 2, rewardType: "credit", weight: 5000 },
+  { segmentIndex: 2, reward: 10, rewardType: "credit", weight: 1 },
+  { segmentIndex: 3, reward: 0, rewardType: "tryagain", weight: 195000 },
 ];
 
 function pickSegment() {
@@ -80,14 +81,19 @@ export async function POST(request: NextRequest) {
   const now = new Date();
   const todayIST = getISTDateString(now);
   const record = await col.findOne({ discordId: user.id });
-  const claimsToday = record?.claimDate === todayIST ? (record?.claimsToday ?? 0) : 0;
+
+  if (!record) {
+    return NextResponse.json({ error: "User not found." }, { status: 404 });
+  }
+
+  const claimsToday = record.claimDate === todayIST ? (record.claimsToday ?? 0) : 0;
 
   if (claimsToday >= DAILY_LIMIT) {
     const resetAt = getNextMidnightIST();
     return NextResponse.json({ error: "Daily limit reached.", resetAt: resetAt.toISOString() }, { status: 429 });
   }
 
-  const lastClaimAt = record?.lastClaimAt ? new Date(record.lastClaimAt).getTime() : 0;
+  const lastClaimAt = record.lastClaimAt ? new Date(record.lastClaimAt).getTime() : 0;
   const msSinceLast = now.getTime() - lastClaimAt;
   if (msSinceLast < COOLDOWN_MS) {
     const waitSeconds = Math.ceil((COOLDOWN_MS - msSinceLast) / 1000);
@@ -116,30 +122,40 @@ export async function POST(request: NextRequest) {
   const spin = pickSegment();
   const creditReward = spin.reward;
 
-  await col.updateOne(
-    { discordId: user.id },
+  const newClaimsToday = claimsToday + 1;
+
+  const result = await col.findOneAndUpdate(
+    {
+      discordId: user.id,
+      $or: [
+        { claimDate: { $ne: todayIST } },
+        { claimsToday: { $lt: DAILY_LIMIT } },
+      ],
+    },
     {
       $inc: { credits: creditReward, totalSpins: 1 },
       $set: {
         lastClaimAt: now,
         claimDate: todayIST,
-        claimsToday: claimsToday + 1,
+        claimsToday: newClaimsToday,
       },
-      $setOnInsert: { discordId: user.id },
     },
-    { upsert: true }
+    { returnDocument: "after" }
   );
 
-  const updated = await col.findOne({ discordId: user.id });
+  if (!result) {
+    return NextResponse.json({ error: "Daily limit reached." }, { status: 429 });
+  }
 
   return NextResponse.json({
     success: true,
-    credits: updated?.credits ?? 0,
-    claimsToday: claimsToday + 1,
+    credits: result.credits ?? 0,
+    claimsToday: newClaimsToday,
     dailyLimit: DAILY_LIMIT,
-    totalSpins: updated?.totalSpins ?? 0,
+    totalSpins: result.totalSpins ?? 0,
     segmentIndex: spin.segmentIndex,
     reward: spin.reward,
     rewardType: spin.rewardType,
+    cooldownMs: COOLDOWN_MS,
   });
 }

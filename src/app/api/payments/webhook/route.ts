@@ -3,7 +3,12 @@ import { verifyWebhook } from "@/lib/cryptomus";
 import clientPromise from "@/lib/mongodb";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
 
   if (!verifyWebhook(body)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
@@ -11,18 +16,18 @@ export async function POST(req: NextRequest) {
 
   const { order_id, status } = body;
 
-  if (status !== "paid" && status !== "paid_over" && status !== "paid_under") {
+  if (status !== "paid" && status !== "paid_over") {
     return NextResponse.json({ ok: true });
   }
 
   const db = (await clientPromise).db();
-  const payment = await db.collection("pending_payments").findOne({ orderId: order_id });
+
+  const payment = await db.collection("pending_payments").findOneAndUpdate(
+    { orderId: order_id, status: "pending" },
+    { $set: { status: "completed", completedAt: new Date() } }
+  );
 
   if (!payment) {
-    return NextResponse.json({ error: "Payment not found" }, { status: 404 });
-  }
-
-  if (payment.status === "completed") {
     return NextResponse.json({ ok: true });
   }
 
@@ -35,11 +40,6 @@ export async function POST(req: NextRequest) {
       $inc: { credits: payment.credits },
       ...(shouldUpgradeTier && { $set: { tier: "paid" } }),
     }
-  );
-
-  await db.collection("pending_payments").updateOne(
-    { orderId: order_id },
-    { $set: { status: "completed", completedAt: new Date() } }
   );
 
   return NextResponse.json({ ok: true });
