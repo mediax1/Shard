@@ -15,45 +15,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname === "/login" && token) {
-    const banCheck = await checkBan(token, baseUrl);
-    if (banCheck === "banned") {
-      return NextResponse.redirect(new URL("/banned", baseUrl));
-    }
     return NextResponse.redirect(new URL("/panel", baseUrl));
   }
 
-  if (pathname.startsWith("/panel") && token) {
-    const banCheck = await checkBan(token, baseUrl);
-    if (banCheck === "banned") {
-      const response = NextResponse.redirect(new URL("/banned", baseUrl));
-      response.cookies.delete("token");
-      return response;
-    }
-  }
-
   return NextResponse.next();
-}
-
-async function checkBan(token: string, baseUrl: string): Promise<"banned" | "ok" | "error"> {
-  try {
-    const decoded = atob(token);
-    const payload = JSON.parse(decoded);
-    const discordId = payload?.id;
-    if (!discordId) return "error";
-
-    const res = await fetch(
-      `${baseUrl}/api/auth/check-ban?discordId=${discordId}`,
-      {
-        headers: { "x-internal-secret": process.env.INTERNAL_SECRET! },
-      }
-    );
-
-    if (!res.ok) return "error";
-    const data = await res.json();
-    return data.banned === true ? "banned" : "ok";
-  } catch {
-    return "error";
-  }
 }
 
 export const config = {

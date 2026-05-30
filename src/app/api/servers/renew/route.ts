@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import { unsuspendPteroServer } from "@/lib/pterodactyl";
 import { PLANS, type PlanKey, type Duration } from "@/lib/plans";
 import { isRenewable } from "@/lib/serverUtils";
+import { getAuthenticatedUser } from "@/lib/getAuthUser";
 
 
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getAuthenticatedUser();
+  if (!auth.ok) {
+    if (auth.reason === "banned") return NextResponse.json({ error: "Account banned." }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const user = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+  const user = auth.user;
 
   let body: { serverId: string; duration: Duration };
   try {
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
     await unsuspendPteroServer(server.pteroId);
   }
 
-  await col.updateOne(
+  const updated = await col.findOneAndUpdate(
     { discordId: user.id, "servers.id": serverId },
     {
       $inc: { credits: -cost },
@@ -69,11 +71,9 @@ export async function POST(request: NextRequest) {
         "servers.$.suspendedAt": null,
         "servers.$.graceEndsAt": null,
       },
-    }
+    },
+    { returnDocument: "after" }
   );
-
-
-  const updated = await col.findOne({ discordId: user.id });
 
   return NextResponse.json({
     success: true,

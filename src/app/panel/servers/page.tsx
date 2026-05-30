@@ -16,7 +16,10 @@ export default async function ServersPage() {
 
   try {
     const db = (await clientPromise).db();
-    const record = await db.collection("users").findOne({ discordId: user.id });
+    const record = await db.collection("users").findOne(
+      { discordId: user.id },
+      { projection: { servers: 1, pteroEmail: 1, pteroPassword: 1 } }
+    );
     pteroEmail = record?.pteroEmail ?? null;
     pteroPassword = record?.pteroPassword ?? null;
     servers = (record?.servers ?? []).map((s: Record<string, unknown>) => ({

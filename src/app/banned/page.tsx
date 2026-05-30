@@ -1,9 +1,11 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import Link from "next/link";
+import clientPromise from "@/lib/mongodb";
 
 export const metadata = {
-  title: "Account Restricted | Shard",
-  description: "Your account has been restricted from accessing Shard services.",
+  title: "Account Banned | Shard",
+  description: "Your account has been banned from accessing Shard services.",
 };
 
 export default async function BannedPage() {
@@ -11,21 +13,28 @@ export default async function BannedPage() {
   const rawToken = cookieStore.get("token")?.value;
   let reason: string | null = null;
 
-  if (rawToken) {
-    try {
-      const token = decodeURIComponent(rawToken);
-      const payload = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-      const discordId = payload?.id;
-      if (discordId) {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/check-ban?discordId=${discordId}`,
-          { headers: { "x-internal-secret": process.env.INTERNAL_SECRET! } }
-        );
-        const data = await res.json();
-        reason = data.bannedReason ?? null;
-      }
-    } catch { }
+  if (!rawToken) redirect("/login");
+
+  let discordId: string | null = null;
+  try {
+    const token = decodeURIComponent(rawToken);
+    const payload = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+    discordId = payload?.id ?? null;
+  } catch {
+    redirect("/login");
   }
+
+  if (!discordId) redirect("/login");
+
+  const db = (await clientPromise).db();
+  const record = await db.collection("users").findOne(
+    { discordId },
+    { projection: { banned: 1, bannedReason: 1 } }
+  );
+
+  if (!record || record.banned !== true) redirect("/panel");
+
+  reason = record.bannedReason ?? null;
 
   return (
     <div className="min-h-[100dvh] bg-transparent flex items-center justify-center relative overflow-hidden px-4 py-8 sm:py-12">
@@ -53,13 +62,13 @@ export default async function BannedPage() {
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
-            Access <span className="text-red-500">Restricted</span>
+            Access <span className="text-red-500">Banned</span>
           </h1>
 
           <div className="w-12 sm:w-16 h-0.5 bg-gradient-to-r from-transparent via-red-500/50 to-transparent mx-auto my-3 sm:my-5" />
 
           <p className="text-gray-400 text-xs sm:text-sm md:text-base leading-relaxed mb-2">
-            Your account has been suspended and you are no longer able to access Shard services.
+            Your account has been banned and you are no longer able to access Shard services.
           </p>
 
           {reason && (

@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUser } from "@/lib/auth";
 import { createInvoice } from "@/lib/cryptomus";
 import { plans } from "@/components/pricing/PricingPlans";
 import clientPromise from "@/lib/mongodb";
+import { getAuthenticatedUser } from "@/lib/getAuthUser";
 
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) {
+  const auth = await getAuthenticatedUser();
+  if (!auth.ok) {
+    if (auth.reason === "banned") return NextResponse.json({ error: "Account banned." }, { status: 403 });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const user = auth.user;
 
   let body;
   try {

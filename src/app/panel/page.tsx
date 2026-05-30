@@ -13,7 +13,10 @@ export default async function PanelPage() {
 
   try {
     const db = (await clientPromise).db();
-    const record = await db.collection("users").findOne({ discordId: user.id });
+    const record = await db.collection("users").findOne(
+      { discordId: user.id },
+      { projection: { credits: 1, servers: 1 } }
+    );
     credits = record?.credits ?? 0;
     servers = (record?.servers ?? []).map((s: Record<string, unknown>) => ({
       ...s,

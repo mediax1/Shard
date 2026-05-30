@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import { deletePteroServer } from "@/lib/pterodactyl";
+import { getAuthenticatedUser } from "@/lib/getAuthUser";
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getAuthenticatedUser();
+  if (!auth.ok) {
+    if (auth.reason === "banned") return NextResponse.json({ error: "Account banned." }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const user = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+  const user = auth.user;
 
   let body: { serverId: string };
   try {

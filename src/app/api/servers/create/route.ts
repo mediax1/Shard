@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import { createPteroUser, getPteroUserByExternalId, getPteroUserByEmail, createPteroServer, setPteroUserPassword } from "@/lib/pterodactyl";
 import { PLANS, type PlanKey, type Duration } from "@/lib/plans";
 import { isDisplayActive } from "@/lib/serverUtils";
+import { getAuthenticatedUser } from "@/lib/getAuthUser";
 
 
 const SERVER_LIMITS: Record<string, number> = {
@@ -11,11 +11,13 @@ const SERVER_LIMITS: Record<string, number> = {
 };
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getAuthenticatedUser();
+  if (!auth.ok) {
+    if (auth.reason === "banned") return NextResponse.json({ error: "Account banned." }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const user = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+  const user = auth.user;
 
   let body: { name: string; language: "nodejs" | "python"; plan: PlanKey; duration: Duration };
   try {
@@ -67,8 +69,13 @@ export async function POST(request: NextRequest) {
 
   const email = user.email ?? `${user.id}@dynexus.space`;
   const password = crypto.randomUUID();
-  let pteroUser = await getPteroUserByExternalId(user.id);
-  if (!pteroUser) pteroUser = await getPteroUserByEmail(email);
+
+  const [pteroByExternal, pteroByEmail] = await Promise.all([
+    getPteroUserByExternalId(user.id),
+    getPteroUserByEmail(email),
+  ]);
+
+  let pteroUser = pteroByExternal ?? pteroByEmail;
 
   if (!pteroUser) {
     pteroUser = await createPteroUser(user.id, user.username, email);

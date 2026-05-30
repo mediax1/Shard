@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import crypto from "crypto";
+import { getAuthenticatedUser } from "@/lib/getAuthUser";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getAuthenticatedUser();
+  if (!auth.ok) {
+    if (auth.reason === "banned") return NextResponse.json({ error: "Account banned." }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const user = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+  const user = auth.user;
   const db = (await clientPromise).db();
   const record = await db.collection("users").findOne({ discordId: user.id });
 
@@ -38,11 +40,13 @@ export async function GET() {
 }
 
 export async function POST() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getAuthenticatedUser();
+  if (!auth.ok) {
+    if (auth.reason === "banned") return NextResponse.json({ error: "Account banned." }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const user = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+  const user = auth.user;
   const db = (await clientPromise).db();
   const record = await db.collection("users").findOne({ discordId: user.id });
 
